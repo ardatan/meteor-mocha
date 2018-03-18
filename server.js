@@ -1,10 +1,23 @@
-import { mochaInstance } from './core/server';
-import { startBrowser } from 'meteor/meteortesting:browser-tests';
+import {
+  mochaInstance
+} from './core/server';
+import {
+  startBrowser
+} from './browser-tests/server';
 
 import setArgs from './runtimeArgs';
 
-const { mochaOptions, runnerOptions } = setArgs();
-const { grep, invert, reporter, serverReporter, xUnitOutput } = mochaOptions || {};
+const {
+  mochaOptions,
+  runnerOptions
+} = setArgs();
+const {
+  grep,
+  invert,
+  reporter,
+  serverReporter,
+  xUnitOutput
+} = mochaOptions || {};
 
 // Since intermingling client and server log lines would be confusing,
 // the idea here is to buffer all client logs until server tests have
@@ -13,6 +26,7 @@ const { grep, invert, reporter, serverReporter, xUnitOutput } = mochaOptions || 
 
 let serverTestsDone = false;
 const clientLines = [];
+
 function clientLogBuffer(line) {
   if (serverTestsDone) {
     // printing and removing the extra new-line character. The first was added by the client log, the second here.
@@ -40,6 +54,7 @@ function printHeader(type) {
 let callCount = 0;
 let clientFailures = 0;
 let serverFailures = 0;
+
 function exitIfDone(type, failures) {
   callCount++;
   if (type === 'client') {
@@ -146,4 +161,6 @@ function start() {
   }
 }
 
-export { start };
+export {
+  start
+};
