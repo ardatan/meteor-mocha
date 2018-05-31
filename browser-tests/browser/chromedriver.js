@@ -26,7 +26,8 @@ export default function startChrome({
   let webdriver;
   let logging;
   try {
-    require('chromedriver');
+    chromedriver = require('chromedriver');
+    chrome = require('selenium-webdriver/chrome');
     webdriver = require('selenium-webdriver');
     logging = require('selenium-webdriver/lib/logging');
   } catch (error) {
@@ -39,7 +40,11 @@ export default function startChrome({
 
   // Get the driver instance. By default, chromedriver gives us only errors
   // so we need to set browser logging level to "ALL".
-  driver = new webdriver.Builder().forBrowser('chrome').setLoggingPrefs({ browser: 'ALL' }).build();
+  const options = new chrome.Options();
+  options.addArguments('no-sandbox');
+  driver = new webdriver.Builder().forBrowser('chrome').setLoggingPrefs({
+    browser: 'ALL'
+  }).setChromeOptions(options).build();
 
   // Can't hide the window but can move it off screen
   driver.manage().window().setPosition(20000, 20000);
@@ -79,7 +84,7 @@ export default function startChrome({
 
   let testFailures;
   driver
-    .wait(function() {
+    .wait(function () {
       // After the page loads, the tests are running. Eventually they
       // finish and the driver package is supposed to set window.testsDone
       // and window.testFailures at that time.
