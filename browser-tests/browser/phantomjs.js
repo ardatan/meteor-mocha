@@ -19,6 +19,7 @@ export default function startPhantom({
   let phantomjs;
   let phantomJSBinary;
   let QtQPAPlatform = '';
+  let hasOffscreen = false;
 
   // detect system PhantomJS installation
   try {
@@ -46,6 +47,28 @@ export default function startPhantom({
 
     if(whichExec) {
       phantomJSBinary = whichExec.toString().trim();
+
+      console.log('Checking offscreen plugin support.');
+
+      try {
+        // check if we have a working offscreen plugin
+        // QT_QPA_PLATFORM=offscreen phantomjs --version
+        let offscreenCheck = childProcess.execSync(
+          'phantomjs --version',
+          { env: {
+            'PATH': path,
+            QT_QPA_PLATFORM: 'offscreen'
+            }
+          }
+        );
+
+        hasOffscreen = true;
+        console.log('Offscreen plugin found!');
+      }
+      catch (error) {
+        console.log('Offscreen plugin not found!');
+      }
+
     }
   }
   catch (error) {
@@ -62,6 +85,11 @@ export default function startPhantom({
   // Fallback to use prebuilt PhantomJS
   if(!phantomJSBinary) {
     phantomJSBinary = phantomjs.path;
+    QtQPAPlatform = '';
+  }
+
+  // Disable offscreen plugin
+  if(!hasOffscreen) {
     QtQPAPlatform = '';
   }
 
