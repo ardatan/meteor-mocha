@@ -29,7 +29,7 @@ export default function startPhantom({
 
     if(!isWindows) {
       whichCommand = 'which' + ' phantomjs';
-      path = '/usr/local/bin:/usr/bin:/bin:/usr/local/phantomjs/bin';
+      path = '/usr/local/phantomjs/bin:/usr/local/bin:/usr/bin:/bin';
       QtQPAPlatform = 'offscreen';
     }
     else {
