@@ -14,4 +14,6 @@ Package.onUse(function onUse(api) {
 
   api.mainModule('client.js', 'client');
   api.mainModule('server.js', 'server');
+  
+  api.addAssets(['browser-tests/browser/phantomjs_script.js'], ['server']);
 });
