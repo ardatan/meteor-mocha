@@ -17,10 +17,52 @@ export default function startPhantom({
   done,
 }) {
   let phantomjs;
+  let phantomJSBinary;
+  let QtQPAPlatform = '';
+
+  // detect system PhantomJS installation
+  try {
+    const isWindows = 'win32' === process.platform;
+    let whichCommand;
+    let path;
+
+    if(!isWindows) {
+      whichCommand = 'which' + ' phantomjs';
+      path = '/usr/local/bin:/usr/bin:/bin';
+      QtQPAPlatform = 'offscreen';
+    }
+    else {
+      // Not yet implemented for Windows
+      whichCommand = 'where' + ' phantomjs.exe';
+      path = 'C:\phantomjs\bin';
+    }
+
+    // use custom PATH to prevent using Meteor modified env variables,
+    // containing prebuilt phantomjs
+    let whichExec = childProcess.execSync(
+      whichCommand,
+      { env: {'PATH': path} }
+    );
+
+    if(whichExec) {
+      phantomJSBinary = whichExec.toString().trim();
+    }
+  }
+  catch (error) {
+    console.error('Error: When detecting system PhantomJS installation.');
+    console.error('Falling back to use prebuilt PhantomJS.');
+  }
+
   try {
     phantomjs = require('phantomjs-prebuilt');
   } catch (error) {
     throw new Error('When running tests with TEST_BROWSER_DRIVER=phantomjs, you must first "npm i --save-dev phantomjs-prebuilt"');
+  }
+
+  // Fallback to use prebuilt PhantomJS
+  if(!phantomJSBinary) {
+    phantomJSBinary = phantomjs.path;
+    QtQPAPlatform = '';
   }
 
   const scriptPath = Assets.absoluteFilePath(PHANTOMJS_SCRIPT_FILE_NAME);
@@ -30,9 +72,10 @@ export default function startPhantom({
     console.log('PhantomJS Script Path:', scriptPath);
   }
 
-  const browserProcess = childProcess.execFile(phantomjs.path, [scriptPath], {
+  const browserProcess = childProcess.execFile(phantomJSBinary, [scriptPath], {
     env: {
       ROOT_URL: process.env.ROOT_URL,
+      QT_QPA_PLATFORM: QtQPAPlatform
     },
   });
 
